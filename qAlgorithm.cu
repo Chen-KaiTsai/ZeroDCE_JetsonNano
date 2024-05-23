@@ -1,9 +1,9 @@
 #include "main.cuh"
 #include "qWeight.h"
 
-RGBIOData_t* INDATA = nullptr; /* ISP_DBDATA */
+RGBIOData_t* INDATA = nullptr;
 RGBIOData_t* dINDATA = nullptr;
-RGBIOData_t* OUTDATA = nullptr; /* ISP_AIISPDATA */
+RGBIOData_t* OUTDATA = nullptr;
 RGBIOData_t* dOUTDATA = nullptr;
 qNormImg_t* dNORM = nullptr;
 qNetIO_t* NETIO = nullptr;
