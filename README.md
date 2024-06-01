@@ -8,6 +8,7 @@ I build this small project on a Jetson Nano 2G with a IMX219.
 
 * A Makefile is provided.
 * A weight file is provided.
+* A `.pt` file provided. This include the entire model.
 * If you want to export a weight file, please refer to the `export_weight.py` and `qWeight.h` file.
 
 # Result Example
