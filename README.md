@@ -4,6 +4,9 @@ A customed ZeroDCE implementation on Jetson Nano with CSI camera.
 
 I build this small project on a Jetson Nano 2G with a IMX219.
 
+_Please refer to the following documentation if you want to know more about ZeroDCE and modification made._
+https://hackmd.io/@Erebustsai/S1nKoPsgA
+
 # Contain
 
 * A Makefile is provided.
