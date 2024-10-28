@@ -172,10 +172,10 @@ using qBConv3rd_t = struct qBConv3rd
  * Initialize all data space
  */
 
-extern RGBIOData_t* INDATA; /* ISP_DBDATA */
+extern RGBIOData_t* INDATA;
 extern RGBIOData_t* dINDATA;
 
-extern RGBIOData_t* OUTDATA; /* ISP_AIISPDATA */
+extern RGBIOData_t* OUTDATA;
 extern RGBIOData_t* dOUTDATA;
 
 extern qNormImg_t* dNORM;

@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 #endif
 
     auto start = std::chrono::steady_clock::now();
-    DCE_ZeroCopy::initMem_ZeroCopy();
+    DCE::initMem();
     auto end = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     printf("initMem Function Time: %lf\n", static_cast<double>(duration.count()) / 1000.0);
@@ -64,42 +64,42 @@ int main(int argc, char** argv)
     printf("\n\n------------------------------------------------------------\n\n");
 
     start = std::chrono::steady_clock::now();
-    DCE_ZeroCopy::qNormNDownSample_ZeroCopy();
+    DCE::qNormNDownSample();
     end = std::chrono::steady_clock::now();
     duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     printf("qNormNDownSample Function Time: %lf\n", static_cast<double>(duration.count()) / 1000.0);
     printf("\n\n------------------------------------------------------------\n\n");
 
     start = std::chrono::steady_clock::now();
-    DCE_ZeroCopy::qConv1st_ZeroCopy();
+    DCE::qConv1st();
     end = std::chrono::steady_clock::now();
     duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     printf("qConv1st Function Time: %lf\n", static_cast<double>(duration.count()) / 1000.0);
     printf("\n\n------------------------------------------------------------\n\n");
 
     start = std::chrono::steady_clock::now();
-    DCE_ZeroCopy::qConv2nd_ZeroCopy();
+    DCE::qConv2nd();
     end = std::chrono::steady_clock::now();
     duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     printf("qConv2nd Function Time: %lf\n", static_cast<double>(duration.count()) / 1000.0);
     printf("\n\n------------------------------------------------------------\n\n");
 
     start = std::chrono::steady_clock::now();
-    DCE_ZeroCopy::qConv3rd_ZeroCopy();
+    DCE::qConv3rd();
     end = std::chrono::steady_clock::now();
     duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     printf("qConv3rd Function Time: %lf\n", static_cast<double>(duration.count()) / 1000.0);
     printf("\n\n------------------------------------------------------------\n\n");
 
     start = std::chrono::steady_clock::now();
-    DCE_ZeroCopy::qUpSample_ZeroCopy();
+    DCE::qUpSample();
     end = std::chrono::steady_clock::now();
     duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     printf("qUpSample Function Time: %lf\n", static_cast<double>(duration.count()) / 1000.0);
     printf("\n\n------------------------------------------------------------\n\n");
 
     start = std::chrono::steady_clock::now();
-    DCE_ZeroCopy::qEnhance_ZeroCopy();
+    DCE::qEnhance();
     end = std::chrono::steady_clock::now();
     duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     printf("qEnhance Function Time: %lf\n", static_cast<double>(duration.count()) / 1000.0);
@@ -112,7 +112,7 @@ int main(int argc, char** argv)
     printf("cvOutputImg Function Time: %lf\n", static_cast<double>(duration.count()) / 1000.0);
     printf("\n\n------------------------------------------------------------\n\n");
 
-    DCE_ZeroCopy::cleanMem_ZeroCopy();
+    DCE::cleanMem();
 
     return 0;
 }

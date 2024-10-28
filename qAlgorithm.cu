@@ -6,9 +6,10 @@ void DCE::initMem() {
     OUTDATA = (RGBIOData*)malloc(sizeof(RGBIOData_t));
 
     NETIO = (qNetIO_t*)malloc(sizeof(qNetIO_t));
+#ifdef CPU_UPSAMPLE
     UPSBUFFER = (qEnhancedParam_t*)malloc(sizeof(qEnhancedParam_t));
     PARAM = (qEnhancedParam_t*)malloc(sizeof(qEnhancedParam_t));
-    
+#endif
     CONVW01 = (qWConv1st_t*)malloc(sizeof(qWConv1st_t));
     CONVB01 = (qBConv1st_t*)malloc(sizeof(qBConv1st_t));
     CONVW02 = (qWConv2nd_t*)malloc(sizeof(qWConv2nd_t));
@@ -326,6 +327,7 @@ void DCE::qConv3rd() {
     }
 
     // Copy NETIO to CPU
+#ifdef CPU_UPSAMPLE
     error = cudaMemcpy(NETIO, dNETIO, sizeof(qNetIO_t), cudaMemcpyDeviceToHost);
     if (error != cudaSuccess) {
         printf("Error dNETIO cudaMemcpy() : %d\n%s\n\n", static_cast<int>(error), cudaGetErrorString(error));
@@ -341,8 +343,10 @@ void DCE::qConv3rd() {
         }
         dNETIO = nullptr;
     }
+#endif
 }
 
+#ifdef CPU_UPSAMPLE
 void DCE::qUpSample()
 {
     int coef[12] = {42, 128, 213, 298, 384, 469, 554, 640, 725, 810, 896, 981};
@@ -414,11 +418,64 @@ void DCE::qUpSample()
         NETIO = nullptr;
     }
 }
+#endif
+
+void DCE::qUpSample() {
+    // Allocate dUPSBUFFER on GPU
+    // Allocate dPARAM on GPU
+    cudaError_t error;
+
+    error = cudaMalloc(&dUPSBUFFER, sizeof(qEnhancedParam_t));
+    if (error != cudaSuccess) {
+        printf("Error dUPSBUFFER cudaMalloc() : %d\n%s\n\n", static_cast<int>(error), cudaGetErrorString(error));
+        exit(EXIT_FAILURE);
+    }
+
+    error = cudaMalloc(&dPARAM, sizeof(qEnhancedParam_t));
+    if (error != cudaSuccess) {
+        printf("Error dPARAM cudaMalloc() : %d\n%s\n\n", static_cast<int>(error), cudaGetErrorString(error));
+        exit(EXIT_FAILURE);
+    }
+
+    // Run dUpSample_x
+    dim3 dimBlock = {24, 30, 1};
+    dim3 dimGrid = {DCE_HEIGHT / dimBlock.x, IMG_WIDTH / dimBlock.y, 1};    
+    dUpSample_x<<<dimGrid, dimBlock>>>(dNETIO, dUPSBUFFER);
+
+    cudaDeviceSynchronize();
+    error = cudaGetLastError();
+    if (error != cudaSuccess) {
+		printf("Error: dUpSample_x %d\n%s\n\n", static_cast<int>(error), cudaGetErrorString(error));
+		exit(EXIT_FAILURE);
+	}
+
+    // Run dUpSample_y
+    dimBlock = {24, 30, 1};
+    dimGrid = {IMG_HIGHT / dimBlock.x, IMG_WIDTH / dimBlock.y, 1};
+    dUpSample_y<<<dimGrid, dimBlock>>>(dUPSBUFFER, dPARAM);
+
+    cudaDeviceSynchronize();
+    error = cudaGetLastError();
+    if (error != cudaSuccess) {
+		printf("Error: dUpSample_y %d\n%s\n\n", static_cast<int>(error), cudaGetErrorString(error));
+		exit(EXIT_FAILURE);
+	}
+
+    if (dUPSBUFFER != nullptr) {
+        error = cudaFree(dUPSBUFFER);
+        if (error != cudaSuccess) {
+            printf("Error dUPSBUFFER cudaFree() : %d\n%s\n\n", static_cast<int>(error), cudaGetErrorString(error));
+            exit(EXIT_FAILURE);  
+        }
+        dUPSBUFFER = nullptr;
+    }
+}
 
 void DCE::qEnhance()
 {
     cudaError_t error;
 
+#ifdef CPU_UPSAMPLE
     // Copy PARAM to GPU
     error = cudaMalloc(&dPARAM, sizeof(qEnhancedParam_t));
     if (error != cudaSuccess) {
@@ -431,6 +488,7 @@ void DCE::qEnhance()
         printf("Error dPARAM cudaMemcpy() : %d\n%s\n\n", static_cast<int>(error), cudaGetErrorString(error));
         exit(EXIT_FAILURE);  
     }  
+#endif
 
     // Malloc dOUTDATA
     error = cudaMalloc(&dOUTDATA, sizeof(RGBIOData_t));

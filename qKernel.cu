@@ -124,16 +124,15 @@ __global__ void dUpSample_x(qNetIO_t* dNETIO, qEnhancedParam_t* dUPSBUFFER) // T
 
     __syncthreads();
 
-    int hi = h / DSRATE;
     if (w < pad) {
-        dUPSBUFFER->data[h][w][0] = dNETIO->data[hi][0][0];
-        dUPSBUFFER->data[h][w][1] = dNETIO->data[hi][0][1];
-        dUPSBUFFER->data[h][w][2] = dNETIO->data[hi][0][2];
+        dUPSBUFFER->data[h][w][0] = dNETIO->data[h][0][0];
+        dUPSBUFFER->data[h][w][1] = dNETIO->data[h][0][1];
+        dUPSBUFFER->data[h][w][2] = dNETIO->data[h][0][2];
     }
     else if (w >= (IMG_WIDTH - pad)) {
-		dUPSBUFFER->data[h][w][0] = dNETIO->data[hi][DCE_WIDTH - 1][0];
-		dUPSBUFFER->data[h][w][1] = dNETIO->data[hi][DCE_WIDTH - 1][1];
-		dUPSBUFFER->data[h][w][2] = dNETIO->data[hi][DCE_WIDTH - 1][2];
+		dUPSBUFFER->data[h][w][0] = dNETIO->data[h][DCE_WIDTH - 1][0];
+		dUPSBUFFER->data[h][w][1] = dNETIO->data[h][DCE_WIDTH - 1][1];
+		dUPSBUFFER->data[h][w][2] = dNETIO->data[h][DCE_WIDTH - 1][2];
     }
     else {
         int d = (w - pad) % DSRATE;
@@ -176,7 +175,7 @@ __global__ void dUpSample_y(qEnhancedParam_t* dUPSBUFFER, qEnhancedParam_t* dPAR
 		dPARAM->data[h][w][1] = dUPSBUFFER->data[0][w][1];
 		dPARAM->data[h][w][2] = dUPSBUFFER->data[0][w][2];
     }
-    if (h >= (IMG_HIGHT - pad)) {
+    else if (h >= (IMG_HIGHT - pad)) {
 		dPARAM->data[h][w][0] = dUPSBUFFER->data[DCE_HEIGHT - 1][w][0];
 		dPARAM->data[h][w][1] = dUPSBUFFER->data[DCE_HEIGHT - 1][w][1];
 		dPARAM->data[h][w][2] = dUPSBUFFER->data[DCE_HEIGHT - 1][w][2];
@@ -200,7 +199,7 @@ __global__ void dEnhance(qNormImg_t* dNORM, qEnhancedParam_t* dPARAM, RGBIOData_
     int qP = dPARAM->data[globalIdx_x][globalIdx_y][globalIdx_z];
 
     int output;
-    for (int i =0; i < 8; ++i) {
+    for (int i = 0; i < 8; ++i) {
         int qX2 = qX << 10;
         int qX3 = qX2 << 10;
         qX3 = qX3 + qP * (qX * qX - qX2);
