@@ -418,11 +418,8 @@ void DCE::qUpSample()
         NETIO = nullptr;
     }
 }
-#endif
-
+#else
 void DCE::qUpSample() {
-    // Allocate dUPSBUFFER on GPU
-    // Allocate dPARAM on GPU
     cudaError_t error;
 
     error = cudaMalloc(&dUPSBUFFER, sizeof(qEnhancedParam_t));
@@ -438,7 +435,7 @@ void DCE::qUpSample() {
     }
 
     // Run dUpSample_x
-    dim3 dimBlock = {24, 30, 1};
+    dim3 dimBlock = {30, 30, 1};
     dim3 dimGrid = {DCE_HEIGHT / dimBlock.x, IMG_WIDTH / dimBlock.y, 1};    
     dUpSample_x<<<dimGrid, dimBlock>>>(dNETIO, dUPSBUFFER);
 
@@ -470,6 +467,7 @@ void DCE::qUpSample() {
         dUPSBUFFER = nullptr;
     }
 }
+#endif
 
 void DCE::qEnhance()
 {

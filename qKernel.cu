@@ -124,6 +124,8 @@ __global__ void dUpSample_x(qNetIO_t* dNETIO, qEnhancedParam_t* dUPSBUFFER) // T
 
     __syncthreads();
 
+    // int coef[12] = {42, 128, 213, 298, 384, 469, 554, 640, 725, 810, 896, 981};
+
     if (w < pad) {
         dUPSBUFFER->data[h][w][0] = dNETIO->data[h][0][0];
         dUPSBUFFER->data[h][w][1] = dNETIO->data[h][0][1];
@@ -169,6 +171,8 @@ __global__ void dUpSample_y(qEnhancedParam_t* dUPSBUFFER, qEnhancedParam_t* dPAR
     }
 
     __syncthreads();
+
+    // int coef[12] = {42, 128, 213, 298, 384, 469, 554, 640, 725, 810, 896, 981};
 
     if (h < pad) {
 		dPARAM->data[h][w][0] = dUPSBUFFER->data[0][w][0];

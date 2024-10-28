@@ -76,7 +76,9 @@ constexpr unsigned int DCE_CHANNEL = 32;
 
 #define NTHREAD 3
 
-//#define ON_JETSON
+// #define ON_JETSON
+
+// #define CPU_UPSAMPLE
 
 void loadWeight();
 
