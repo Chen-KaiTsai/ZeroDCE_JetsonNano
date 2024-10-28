@@ -24,6 +24,14 @@
  * @brief Miner Fixs
  * @version 0.7.5
  * @date 2024-5-22
+ * 
+ * @author Chen-Kai Tsai
+ * @brief Under construction of GPU version Up Sampling
+ * @version 0.7.6
+ * @note coef[12] = {42, 128, 213, 298, 384, 469, 554, 640, 725, 810, 896, 981};
+ * @note This coef is centered and equal to {1/24 * 1024, 3/24 * 1024, 5/24 * 1024 ...}
+ * @bug UPSBUFFER can be [DCE_HEIGHT][IMG_WIDTH][3]
+ * @date 2024-10-28
  */
 
 #pragma once
@@ -51,6 +59,7 @@
 #include <opencv2/core/utils/logger.hpp>
 
 // Configurations
+
 constexpr unsigned int DSRATE = 12;
 constexpr unsigned int IMG_HIGHT = 1080;
 constexpr unsigned int IMG_WIDTH = 1920;
@@ -66,35 +75,33 @@ constexpr unsigned int DCE_CHANNEL = 32;
 #define QA 1024
 
 #define NTHREAD 3
-#define ON_JETSON
+
+//#define ON_JETSON
+
+void loadWeight();
 
 namespace DCE
 {
-    void initMem();
-    void initMem_ZeroCopy();
-    
-    void loadWeight();
-    
-    void cleanMem_ZeroCopy();
+    void initMem();    
     void cleanMem();
-
-    void qNormNDownSample_ZeroCopy();
     void qNormNDownSample();
-
-    void qConv1st_ZeroCopy();
     void qConv1st();
-
-    void qConv2nd_ZeroCopy();
     void qConv2nd();
-
-    void qConv3rd_ZeroCopy();
     void qConv3rd();
-
-    void qUpSample_ZeroCopy();
     void qUpSample();
-
-    void qEnhance_ZeroCopy();
     void qEnhance();
+}
+
+namespace DCE_ZeroCopy 
+{
+    void initMem_ZeroCopy();
+    void cleanMem_ZeroCopy();
+    void qNormNDownSample_ZeroCopy();
+    void qConv1st_ZeroCopy();
+    void qConv2nd_ZeroCopy();
+    void qConv3rd_ZeroCopy();
+    void qUpSample_ZeroCopy();
+    void qEnhance_ZeroCopy();
 }
 
 namespace cvf
@@ -104,9 +111,10 @@ namespace cvf
     std::string gstreamer_pipeline (int capture_width, int capture_height, int display_width, int display_height, int framerate, int flip_method);
 }
 
-/*
-* Grouping Data to Structure for Readability
-*/
+/**
+ * Grouping Data to Structure for Readability
+ */
+
 using RGBIOData_t = struct RGBIOData
 {
     uint8_t data[IMG_HIGHT][IMG_WIDTH][IMG_CHANNEL];
@@ -160,9 +168,9 @@ using qBConv3rd_t = struct qBConv3rd
 };
 
 
-/*
-* Initialize all data space
-*/
+/**
+ * Initialize all data space
+ */
 
 extern RGBIOData_t* INDATA; /* ISP_DBDATA */
 extern RGBIOData_t* dINDATA;
@@ -181,6 +189,7 @@ extern qNetFeature_t* dFEATURE2;
 extern qEnhancedParam_t* PARAM;
 extern qEnhancedParam_t* dPARAM;
 extern qEnhancedParam_t* UPSBUFFER;
+extern qEnhancedParam_t* dUPSBUFFER;
 
 extern qWConv1st_t* CONVW01;
 extern qBConv1st_t* CONVB01;
@@ -195,3 +204,16 @@ extern qWConv2nd_t* dCONVW02;
 extern qBConv2nd_t* dCONVB02;
 extern qWConv3rd_t* dCONVW03;
 extern qBConv3rd_t* dCONVB03;
+
+/**
+ * GPU Kernel Functions
+ */
+
+__global__ void dNorm(RGBIOData_t* dINDATA, qNormImg_t* dNORM);
+__global__ void dDownSample(qNormImg_t* dNORM, qNetIO_t* dNETIO);
+__global__ void dConv1st(qNetIO_t* dNETIO, qWConv1st_t* dCONVW01, qBConv1st_t* dCONVB01, qNetFeature_t* dFEATURE1);
+__global__ void dConv2nd(qNetFeature_t* dFEATURE1, qWConv2nd_t* dCONVW02, qBConv2nd_t* dCONVB02, qNetFeature_t* dFEATURE2);
+__global__ void dConv3rd(qNetFeature_t* dFEATURE1, qNetFeature_t* dFEATURE2, qWConv3rd_t* dCONVW03, qBConv3rd_t* dCONVB03, qNetIO_t* dNETIO);
+__global__ void dUpSample_x(qNetIO_t* dNETIO, qEnhancedParam_t* dUPSBUFFER);
+__global__ void dUpSample_y(qEnhancedParam_t* dUPSBUFFER, qEnhancedParam_t* dPARAM);
+__global__ void dEnhance(qNormImg_t* dNORM, qEnhancedParam_t* dPARAM, RGBIOData_t* dOUTDATA);
