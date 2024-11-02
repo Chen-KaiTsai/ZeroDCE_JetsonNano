@@ -28,7 +28,7 @@ __global__ void dConv1st(qNetIO_t* dNETIO, qWConv1st_t* dCONVW01, qBConv1st_t* d
         for (int cin = 0; cin < IMG_CHANNEL; ++cin) {
             for (int kh = -1; kh <= 1; ++kh) {
                 for (int kw = -1; kw <= 1; ++kw) {
-                    if(((h + kh) >= 0) && ((w + kw) >= 0) && ((h + kh) < DCE_HEIGHT) && ((w + kw) < DCE_WIDTH))
+                    if((unsigned int)(h + kh) < DCE_HEIGHT && (unsigned int)(w + kw) < DCE_WIDTH)
                         sum += dNETIO->data[h + kh][w + kw][cin] * dCONVW01->data[cout][cin][kh + 1][kw + 1];
                 }
             }
@@ -49,7 +49,7 @@ __global__ void dConv2nd(qNetFeature_t* dFEATURE1, qWConv2nd_t* dCONVW02, qBConv
         for (int cin = 0; cin < DCE_CHANNEL; ++cin) {
             for (int kh = -1; kh <= 1; ++kh) {
                 for (int kw = -1; kw <= 1; ++kw) {
-                    if(((h + kh) >= 0) && ((w + kw) >= 0) && ((h + kh) < DCE_HEIGHT) && ((w + kw) < DCE_WIDTH))
+                    if((unsigned int)(h + kh) < DCE_HEIGHT && (unsigned int)(w + kw) < DCE_WIDTH)
                         sum += dFEATURE1->data[h + kh][w + kw][cin] * dCONVW02->data[cout][cin][kh + 1][kw + 1];
                 }
             }
@@ -86,7 +86,7 @@ __global__ void dConv3rd(qNetFeature_t* dFEATURE1, qNetFeature_t* dFEATURE2, qWC
         for (int cin = 0; cin < DCE_CHANNEL; ++cin) {
             for (int kh = -1; kh <= 1; ++kh) {
                 for (int kw = -1; kw <= 1; ++kw) {
-                    if(((h + kh) >= 0) && ((w + kw) >= 0) && ((h + kh) < DCE_HEIGHT) && ((w + kw) < DCE_WIDTH))
+                    if((unsigned int)(h + kh) < DCE_HEIGHT && (unsigned int)(w + kw) < DCE_WIDTH)
                         sum += (dFEATURE1->data[h + kh][w + kw][cin] + dFEATURE2->data[h + kh][w + kw][cin]) * dCONVW03->data[cout][cin][kh + 1][kw + 1];
                 }
             }
